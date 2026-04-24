@@ -1,4 +1,14 @@
 package org.example.umc10th.domain.mission.dto;
 
-public class UserMissionResponse {
-}
+import org.example.umc10th.domain.mission.enums.MissionStatus;
+
+import java.time.LocalDate;
+
+public record UserMissionResponse(
+        Long missionId,
+        String storeName,
+        String condition,
+        Integer point,
+        LocalDate deadline,
+        MissionStatus status
+) {}
