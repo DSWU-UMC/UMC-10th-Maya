@@ -1,4 +1,10 @@
 package org.example.umc10th.domain.review.dto;
 
-public class ReviewResponse {
-}
+import java.math.BigDecimal;
+
+public record ReviewResponse(
+        Long reviewId,
+        Long storeId,
+        String content,
+        BigDecimal score
+) {}
