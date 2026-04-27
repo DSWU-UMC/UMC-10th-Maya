@@ -1,4 +1,12 @@
 package org.example.umc10th.domain.review.dto;
 
-public class UserReviewResponse {
-}
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+public record UserReviewResponse(
+        Long reviewId,
+        String userName,
+        String content,
+        BigDecimal score,
+        LocalDateTime createdAt
+) {}
