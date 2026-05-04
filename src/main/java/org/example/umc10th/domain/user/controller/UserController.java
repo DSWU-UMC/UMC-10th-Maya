@@ -2,7 +2,7 @@ package org.example.umc10th.domain.user.controller;
 
 import lombok.RequiredArgsConstructor;
 
-import org.example.umc10th.domain.user.converter.MyPageConverter;
+import org.example.umc10th.domain.user.converter.UserConverter;
 import org.example.umc10th.domain.user.dto.MyPageResponse;
 import org.example.umc10th.domain.user.entity.User;
 import org.example.umc10th.domain.user.repository.UserRepository;
@@ -22,7 +22,8 @@ public class UserController {
 
     private final UserService userService;
     private final UserRepository userRepository;
-    private final MyPageConverter myPageConverter;
+    private final UserConverter userConverter;
+
     // 마이페이지 조회
     @GetMapping("/mypage")
     public ResponseEntity<ApiResponse<MyPageResponse>> getMyPage() {
@@ -31,7 +32,7 @@ public class UserController {
 
         User user = userService.getUser(userId);
 
-        MyPageResponse response = myPageConverter.toDto(user);
+        MyPageResponse response = userConverter.toMyPageDto(user);
 
         return ResponseEntity.ok(
                 ApiResponse.onSuccess(response, UserSuccessCode.OK)

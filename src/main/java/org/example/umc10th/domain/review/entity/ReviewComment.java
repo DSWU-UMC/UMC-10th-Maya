@@ -1,15 +1,17 @@
 package org.example.umc10th.domain.review.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.example.umc10th.common.entity.BaseEntity;
 
 
-@Setter
-@Getter
 @Entity
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name="review_comment")
-public class ReviewComment {
+public class ReviewComment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,9 +19,10 @@ public class ReviewComment {
     private Long id;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")
     private Review review;
+
 
     @Column(name="content",nullable = false)
     private String content;

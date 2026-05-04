@@ -52,8 +52,12 @@ public class UserMissionService {
     public void changeStatus(Long userMissionId, MissionStatus status) {
 
         UserMission userMission = userMissionRepository.findById(userMissionId)
-                .orElseThrow(); // 단순 처리 (에러 코드는 Controller에서 처리)
+                .orElseThrow();
 
-        userMission.setStatus(status);
+        switch (status) {
+            case APPROVED -> userMission.approve();
+            case COMPLETED -> userMission.complete();
+            case PENDING -> userMission.pending();
+        }
     }
 }

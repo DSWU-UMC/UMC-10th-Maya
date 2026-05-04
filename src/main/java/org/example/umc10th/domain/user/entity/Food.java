@@ -22,6 +22,6 @@ public class Food extends BaseEntity {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "food_name", nullable = false)
+    @Column(name = "name", nullable = false)
     private FoodName foodName;
 }

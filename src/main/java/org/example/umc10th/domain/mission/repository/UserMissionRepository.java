@@ -16,11 +16,13 @@ import java.util.List;
 public interface UserMissionRepository extends JpaRepository<UserMission, Long> {
 
     @Query("""
-        SELECT um
-        FROM UserMission um
-        WHERE um.user.id = :userId
-        AND um.status IN :statuses
-    """)
+    SELECT um
+    FROM UserMission um
+    JOIN FETCH um.mission m
+    JOIN FETCH m.store
+    WHERE um.user.id = :userId
+    AND um.status IN :statuses
+""")
     Page<UserMission> findByUserAndStatuses(
             @Param("userId") Long userId,
             @Param("statuses") List<MissionStatus> statuses,

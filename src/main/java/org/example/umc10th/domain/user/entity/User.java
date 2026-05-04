@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.umc10th.common.entity.BaseEntity;
+import org.example.umc10th.domain.mission.entity.UserMission;
 import org.example.umc10th.domain.review.entity.Review;
 import org.example.umc10th.domain.user.enums.Gender;
 
@@ -50,6 +51,12 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<UserFood> userFoodList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<UserMission> userMissions = new ArrayList<>();
 
 
 }

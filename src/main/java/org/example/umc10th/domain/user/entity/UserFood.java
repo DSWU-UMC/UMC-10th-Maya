@@ -18,11 +18,11 @@ public class UserFood extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER) //즉시 로딩
+    @ManyToOne(fetch = FetchType.LAZY) //지연 로딩
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "food_id")
     private Food food;
 }

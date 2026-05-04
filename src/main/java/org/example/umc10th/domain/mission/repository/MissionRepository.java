@@ -10,12 +10,15 @@ import org.springframework.data.repository.query.Param;
 public interface MissionRepository extends JpaRepository<Mission, Long> {
 
     @Query("""
-    SELECT m
-    FROM Mission m
-    LEFT JOIN UserMission um ON um.mission = m
-    WHERE m.store.region.id = :regionId
-    AND um.id IS NULL
-""")
+        SELECT m
+        FROM Mission m
+        WHERE m.store.region.id = :regionId
+        AND NOT EXISTS (
+            SELECT 1
+            FROM UserMission um
+            WHERE um.mission = m
+        )
+    """)
     Page<Mission> findChallengableMissions(
             @Param("regionId") Long regionId,
             Pageable pageable

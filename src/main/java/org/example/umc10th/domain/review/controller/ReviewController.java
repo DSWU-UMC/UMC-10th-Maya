@@ -26,21 +26,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReviewController {
 
     private final ReviewService reviewService;
-    private final UserRepository userRepository;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<UserReviewResponse>> createReview(
-            @RequestBody UserReviewRequest request
+    public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
+            @RequestBody ReviewRequest request
     ) {
-        // request에서 userId() 메서드를 통해 userId 추출
+
         Long userId = request.userId();
 
-        // userId로 User 객체를 DB에서 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // 리뷰 작성 메서드 호출 (User 객체와 UserReviewRequest를 전달)
-        UserReviewResponse response = reviewService.createReview(request, user.getId());
+        ReviewResponse response = reviewService.createReview(request, userId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.onSuccess(response, ReviewSuccessCode.REVIEW_CREATED));

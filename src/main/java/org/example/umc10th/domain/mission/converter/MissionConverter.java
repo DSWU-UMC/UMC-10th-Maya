@@ -11,6 +11,7 @@ public class MissionConverter {
         return new MissionResponse(
                 mission.getId(),
                 mission.getStore().getName(),
+                mission.getStore().getRegion().getName(),
                 mission.getConditional(),
                 mission.getPoint(),
                 mission.getDeadline()
