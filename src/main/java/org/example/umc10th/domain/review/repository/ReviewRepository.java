@@ -18,46 +18,30 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByStoreId(Long storeId);
 
 
-    // ID 기준
-    List<Review> findTopByUserIdOrderByIdDesc(
-            Long userId,
-            Pageable pageable
-    );
-
-
-    //ID 커서 조회
+    // ID 정렬
+    List<Review> findByUserIdOrderByIdDesc(Long userId, Pageable pageable);
 
     List<Review> findByUserIdAndIdLessThanOrderByIdDesc(
-            Long userId,
-            Long cursorId,
-            Pageable pageable
-    );
+            Long userId, Long cursorId, Pageable pageable);
 
 
-    // SCORE 기준
+    // SCORE 정렬
+    List<Review> findByUserIdOrderByScoreDescIdDesc(Long userId, Pageable pageable);
 
-    List<Review> findTopByUserIdOrderByScoreDescIdDesc(
-            Long userId,
-            Pageable pageable
-    );
-
-
-    // SCORE 커서 조회
-
+    //  커서 기반 쿼리
     @Query("""
-        SELECT r
-        FROM Review r
-        WHERE r.user.id = :userId
-          AND (
-                r.score < :cursorScore
-                OR (r.score = :cursorScore AND r.id < :cursorId)
-          )
-        ORDER BY r.score DESC, r.id DESC
+    SELECT r FROM Review r
+    WHERE r.user.id = :userId
+    AND (
+        r.score < :score
+        OR (r.score = :score AND r.id < :id)
+    )
+    ORDER BY r.score DESC, r.id DESC
     """)
     List<Review> findByScoreCursor(
-            @Param("userId") Long userId,
-            @Param("cursorScore") BigDecimal cursorScore,
-            @Param("cursorId") Long cursorId,
+            Long userId,
+            BigDecimal score,
+            Long id,
             Pageable pageable
     );
 }

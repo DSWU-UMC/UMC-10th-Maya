@@ -43,82 +43,56 @@ public class ReviewService {
     }
 
     // 내가 작성한 리뷰 조회 (Cursor Pagination)
-    public ReviewCursorResponse getMyReviews(ReviewCursorRequest request) {
-
-        int size = request.size();
+    public ReviewCursorResponse getMyReviews(
+            Long userId,
+            Long cursorId,
+            BigDecimal cursorScore,
+            int size,
+            String sortType
+    ) {
         int limit = size + 1;
 
         List<Review> reviews;
 
-        // =========================
-        // ID 기준 정렬
-        // =========================
-        if (SortType.ID == SortType.valueOf(request.sortType())) {
+        if (sortType.equals("ID")) {
 
-            if (request.cursorId() == null) {
-                reviews = reviewRepository.findTopByUserIdOrderByIdDesc(
-                        request.userId(),
-                        PageRequest.of(0, limit)
-                );
-            } else {
-                reviews = reviewRepository.findByUserIdAndIdLessThanOrderByIdDesc(
-                        request.userId(),
-                        request.cursorId(),
-                        PageRequest.of(0, limit)
-                );
+            // 첫 페이지 (커서 없음)
+            if (cursorId == null) {
+                reviews = reviewRepository
+                        .findByUserIdOrderByIdDesc(userId, PageRequest.of(0, limit));
+            } else {  // 다음 페이지 (cursorId보다 작은 데이터 조회)
+                reviews = reviewRepository
+                        .findByUserIdAndIdLessThanOrderByIdDesc(userId, cursorId, PageRequest.of(0, limit));
             }
 
-            // =========================
-            // SCORE 기준 정렬
-            // =========================
-        } else {
+        } else { // SCORE
 
-            if (request.cursorId() == null || request.cursorScore() == null) {
-                reviews = reviewRepository.findTopByUserIdOrderByScoreDescIdDesc(
-                        request.userId(),
-                        PageRequest.of(0, limit)
-                );
-            } else {
-                reviews = reviewRepository.findByScoreCursor(
-                        request.userId(),
-                        request.cursorScore(),
-                        request.cursorId(),
-                        PageRequest.of(0, limit)
-                );
+            // 첫 페이지 (커서 없음)
+            if (cursorId == null || cursorScore == null) {
+                reviews = reviewRepository
+                        .findByUserIdOrderByScoreDescIdDesc(userId, PageRequest.of(0, limit));
+            } else { // 다음 페이지
+                reviews = reviewRepository
+                        .findByScoreCursor(userId, cursorScore, cursorId, PageRequest.of(0, limit));
             }
         }
 
-        // =========================
-        // hasNext 처리
-        // =========================
         boolean hasNext = reviews.size() > size;
 
         if (hasNext) {
             reviews = reviews.subList(0, size);
         }
 
-        // =========================
-        // DTO 변환
-        // =========================
         List<ReviewResponse> data = reviews.stream()
                 .map(reviewConverter::toDto)
                 .toList();
 
-        // =========================
-        // next cursor 계산
-        // =========================
         Review last = reviews.isEmpty() ? null : reviews.get(reviews.size() - 1);
 
-        Long nextCursorId = (last != null) ? last.getId() : null;
-        BigDecimal nextCursorScore = (last != null) ? last.getScore() : null;
-
-        // =========================
-        // Response 반환
-        // =========================
         return new ReviewCursorResponse(
                 data,
-                nextCursorId,
-                nextCursorScore,
+                last != null ? last.getId() : null,
+                last != null ? last.getScore() : null,
                 hasNext
         );
     }
