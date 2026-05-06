@@ -2,6 +2,7 @@ package org.example.umc10th.domain.review.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.umc10th.common.entity.BaseEntity;
 import org.example.umc10th.domain.mission.entity.Store;
 import org.example.umc10th.domain.user.entity.User;
 
@@ -13,13 +14,14 @@ import java.util.List;
 
 @Getter
 @Entity
-@Table(name = "review")
+@Builder
 @NoArgsConstructor
-public class Review {
+@AllArgsConstructor
+@Table(name = "review")
+public class Review extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "review_id", nullable = false)
     private Long id;
 
     @ManyToOne
@@ -36,17 +38,9 @@ public class Review {
     @Column(name = "score", nullable = false, precision = 2, scale = 1)
     private BigDecimal score;
 
-    private LocalDateTime createdAt = LocalDateTime.now(); // 기본값 설정
 
-    @OneToMany(mappedBy = "review")
+    @OneToMany(mappedBy = "review", cascade = CascadeType.REMOVE)
     private List<ReviewComment> comments = new ArrayList<>();
 
-    // 4개의 필드를 받는 생성자 추가
-    public Review(Store store, User user, String content, BigDecimal score) {
-        this.store = store;
-        this.user = user;
-        this.content = content;
-        this.score = score;
-        this.createdAt = LocalDateTime.now(); // 생성자에서 createdAt 설정
-    }
+
 }

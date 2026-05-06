@@ -1,4 +1,28 @@
 package org.example.umc10th.domain.user.entity;
 
-public class UserFood {
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.example.umc10th.common.entity.BaseEntity;
+
+
+@Entity
+@Getter
+@Builder
+@NoArgsConstructor(access= AccessLevel.PROTECTED)
+@AllArgsConstructor(access=AccessLevel.PRIVATE)
+@Table(name="user_food")
+public class UserFood extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY) //지연 로딩
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "food_id")
+    private Food food;
 }

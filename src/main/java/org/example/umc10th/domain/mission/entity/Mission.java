@@ -1,18 +1,22 @@
 package org.example.umc10th.domain.mission.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
+
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name="mission")
 public class Mission {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name="mission_id",nullable=false)
     private Long id;
 
     @Column(name="deadline",nullable=false)
@@ -27,6 +31,10 @@ public class Mission {
     @ManyToOne
     @JoinColumn(name = "store_id")
     private Store store;
+
+
+    @OneToMany(mappedBy = "mission")
+    private List<UserMission> userMissions = new ArrayList<>();
 
 
 }

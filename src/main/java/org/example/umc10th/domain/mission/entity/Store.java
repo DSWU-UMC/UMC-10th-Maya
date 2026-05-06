@@ -1,16 +1,21 @@
 package org.example.umc10th.domain.mission.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 
 @Getter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name="store")
 public class Store {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name="store_id",nullable=false)
     private Long id;
 
     @Column(name="name",nullable=false)

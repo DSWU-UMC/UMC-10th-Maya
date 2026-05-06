@@ -13,7 +13,7 @@ public class UserMissionConverter {
         Mission mission = userMission.getMission();
 
         return new UserMissionResponse(
-                userMission.getId(),
+
                 mission.getId(),
                 mission.getStore().getName(),
                 mission.getConditional(),

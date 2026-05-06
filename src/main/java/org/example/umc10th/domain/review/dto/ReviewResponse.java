@@ -1,10 +1,12 @@
 package org.example.umc10th.domain.review.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public record ReviewResponse(
         Long reviewId,
-        Long storeId,
+        String userName,
         String content,
-        BigDecimal score
+        BigDecimal score,
+        LocalDateTime createdAt
 ) {}
