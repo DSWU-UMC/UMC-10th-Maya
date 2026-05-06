@@ -15,7 +15,6 @@ public class UserMission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="user_mission_id",nullable = false)
     private Long id;
 
 

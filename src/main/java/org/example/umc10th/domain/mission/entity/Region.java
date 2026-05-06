@@ -20,7 +20,6 @@ import java.util.List;
 public class Region {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(name="region_id",nullable=false)
     private Long id;
 
     @Column(name="name",nullable=false)

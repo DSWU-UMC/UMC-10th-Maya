@@ -17,7 +17,6 @@ import java.util.List;
 public class Mission {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name="mission_id",nullable=false)
     private Long id;
 
     @Column(name="deadline",nullable=false)

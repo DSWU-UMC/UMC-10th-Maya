@@ -18,7 +18,6 @@ import org.example.umc10th.domain.user.enums.FoodName;
 public class Food extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="food_id", nullable=false)
     private Long id;
 
     @Enumerated(EnumType.STRING)

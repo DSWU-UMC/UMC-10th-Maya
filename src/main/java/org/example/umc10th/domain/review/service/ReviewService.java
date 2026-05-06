@@ -43,35 +43,40 @@ public class ReviewService {
     }
 
     // 내가 작성한 리뷰 조회 (Cursor Pagination)
-    public ReviewCursorResponse getMyReviews(
-            Long userId,
-            Long cursorId,
-            BigDecimal cursorScore,
-            int size,
-            String sortType
-    ) {
+    public ReviewCursorResponse getMyReviews(ReviewCursorRequest request) {
+
+        Long userId = request.userId();
+        Long cursorId = request.cursorId();
+        BigDecimal cursorScore = request.cursorScore();
+        int size = request.size();
+        String sortType = request.sortType();
+
         int limit = size + 1;
 
         List<Review> reviews;
 
-        if (sortType.equals("ID")) {
+        if ("ID".equals(sortType)) {
 
-            // 첫 페이지 (커서 없음)
+            // 첫 페이지
             if (cursorId == null) {
                 reviews = reviewRepository
                         .findByUserIdOrderByIdDesc(userId, PageRequest.of(0, limit));
-            } else {  // 다음 페이지 (cursorId보다 작은 데이터 조회)
+            }
+            // 다음 페이지
+            else {
                 reviews = reviewRepository
                         .findByUserIdAndIdLessThanOrderByIdDesc(userId, cursorId, PageRequest.of(0, limit));
             }
 
         } else { // SCORE
 
-            // 첫 페이지 (커서 없음)
+            // 첫 페이지
             if (cursorId == null || cursorScore == null) {
                 reviews = reviewRepository
                         .findByUserIdOrderByScoreDescIdDesc(userId, PageRequest.of(0, limit));
-            } else { // 다음 페이지
+            }
+            // 다음 페이지
+            else {
                 reviews = reviewRepository
                         .findByScoreCursor(userId, cursorScore, cursorId, PageRequest.of(0, limit));
             }
