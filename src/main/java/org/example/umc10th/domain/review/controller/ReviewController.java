@@ -1,5 +1,6 @@
 package org.example.umc10th.domain.review.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.umc10th.domain.review.dto.ReviewRequest;
 import org.example.umc10th.domain.review.dto.ReviewResponse;
@@ -25,7 +26,7 @@ public class ReviewController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
-            @RequestBody ReviewRequest request
+            @RequestBody @Valid ReviewRequest request
     ) {
 
         Long userId = request.userId();

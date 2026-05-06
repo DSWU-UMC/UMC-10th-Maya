@@ -2,6 +2,7 @@ package org.example.umc10th.domain.mission.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.umc10th.domain.mission.converter.MissionConverter;
+import org.example.umc10th.domain.mission.dto.MissionRequest;
 import org.example.umc10th.domain.mission.dto.MissionResponse;
 import org.example.umc10th.domain.mission.entity.Mission;
 import org.example.umc10th.domain.mission.entity.Region;
@@ -23,5 +24,16 @@ public class MissionService {
 
         return missionRepository.findChallengableMissions(regionId, pageable)
                 .map(missionConverter::toDto);
+    }
+
+    public void createMission(MissionRequest.CreateMission request) {
+
+        Mission mission = Mission.builder()
+                .deadline(request.deadline())
+                .point(request.point())
+                .conditional(request.conditional())
+                .build();
+
+        missionRepository.save(mission);
     }
 }
