@@ -6,36 +6,41 @@ import org.example.umc10th.domain.mission.dto.MissionRequest;
 import org.example.umc10th.domain.mission.dto.MissionResponse;
 import org.example.umc10th.domain.mission.service.MissionService;
 import org.example.umc10th.global.apiPayLoad.ApiResponse;
+import org.example.umc10th.global.apiPayLoad.code.BaseSuccessCode;
 import org.example.umc10th.global.apiPayLoad.code.MissionSuccessCode;
-import org.springframework.data.domain.Page;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/mission")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class MissionController {
 
     private final MissionService missionService;
 
-    @GetMapping("/home") //홈 화면: 특정 지역에서 도전 가능한 미션 목록 조회
-    public Page<MissionResponse> getChallengableMissions(
-            @RequestParam Long regionId,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return missionService.getHomeMissions(regionId, page, size);
+    //가게 미션 생성
+    @PostMapping("/v1/stores/{storeId}/missions")
+    public ApiResponse<Void> createMission(
+            @PathVariable Long storeId,
+            @RequestBody MissionRequest.CreateMission dto
+    )
+    {
+        BaseSuccessCode code=MissionSuccessCode.CREATED;
+        return ApiResponse.onSuccess(code,missionService.createMission(storeId,dto));
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<Void>> createMission(
-            @RequestBody MissionRequest.CreateMission request
-    ) {
-        missionService.createMission(request);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.onSuccess(null, MissionSuccessCode.CREATED));
+    //가게 내 미션들 조회
+    @GetMapping("/v1/stores/{storeId}/missions")
+    public ApiResponse<List<MissionResponse.GetMission>> getMissions(
+            @PathVariable Long storeId
+    ){
+        BaseSuccessCode code=MissionSuccessCode.OK;
+        return ApiResponse.onSuccess(code,missionService.getMissions(storeId));
     }
+
+
+
+
 }

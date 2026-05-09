@@ -7,20 +7,26 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface MissionRepository extends JpaRepository<Mission, Long> {
 
+
+    List<Mission> findAllByStore_Id(Long storeId);
+
     @Query("""
-        SELECT m
-        FROM Mission m
-        WHERE m.store.region.id = :regionId
-        AND NOT EXISTS (
-            SELECT 1
-            FROM UserMission um
-            WHERE um.mission = m
-        )
-    """)
-    Page<Mission> findChallengableMissions(
+    SELECT m
+    FROM Mission m
+    WHERE m.store.region.id = :regionId
+    AND NOT EXISTS (
+        SELECT um
+        FROM UserMission um
+        WHERE um.mission = m
+        AND um.user.id = :userId
+    )
+""")
+    List<Mission> findAvailableMissions(
             @Param("regionId") Long regionId,
-            Pageable pageable
+            @Param("userId") Long userId
     );
 }

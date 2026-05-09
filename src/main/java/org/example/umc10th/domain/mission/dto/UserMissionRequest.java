@@ -1,9 +1,13 @@
 package org.example.umc10th.domain.mission.dto;
 
 
-public record UserMissionRequest(
-        Long userId,
-        int page,
-        int size,
-        boolean completed
-) {}
+import org.example.umc10th.domain.mission.enums.MissionFilterStatus;
+
+
+public class UserMissionRequest{
+    public record SortMyMission(
+
+           MissionFilterStatus missionFilterStatus
+    ){}
+}
+

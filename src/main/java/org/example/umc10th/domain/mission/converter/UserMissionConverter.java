@@ -1,25 +1,24 @@
 package org.example.umc10th.domain.mission.converter;
 
-import org.example.umc10th.domain.mission.dto.UserMissionResponse;
-import org.example.umc10th.domain.mission.entity.Mission;
-import org.example.umc10th.domain.mission.entity.UserMission;
-import org.springframework.stereotype.Component;
 
-@Component
+import org.example.umc10th.domain.mission.dto.UserMissionResponse;
+import org.example.umc10th.domain.mission.entity.UserMission;
+
 public class UserMissionConverter {
 
-    public UserMissionResponse toDto(UserMission userMission) {
-
-        Mission mission = userMission.getMission();
-
-        return new UserMissionResponse(
-
-                mission.getId(),
-                mission.getStore().getName(),
-                mission.getConditional(),
-                mission.getPoint(),
-                mission.getDeadline(),
-                userMission.getStatus()
-        );
+    //내가 진행중, 진행 완료한 미션 모아 보기
+    public static UserMissionResponse.getMyMission toGetMyMission(
+            UserMission userMission
+    ){
+        return UserMissionResponse.getMyMission.builder()
+                .userMissionId(userMission.getId())
+                .missionId(userMission.getMission().getId())
+                .storeName(userMission.getMission().getStore().getName())
+                .conditional(userMission.getMission().getConditional())
+                .point(userMission.getMission().getPoint())
+                .deadline(userMission.getMission().getDeadline())
+                .status(userMission.getStatus())
+                .build();
     }
+
 }

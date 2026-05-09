@@ -10,10 +10,14 @@ import org.example.umc10th.domain.review.enums.SortType;
 import org.example.umc10th.domain.review.repository.ReviewRepository;
 import org.example.umc10th.domain.user.entity.User;
 import org.example.umc10th.domain.user.repository.UserRepository;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+import org.example.umc10th.global.apiPayLoad.code.StoreErrorCode;
+import org.example.umc10th.global.apiPayLoad.code.UserErrorCode;
+import org.example.umc10th.global.apiPayLoad.exception.StoreException;
+import org.example.umc10th.global.apiPayLoad.exception.UserException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 
@@ -22,83 +26,39 @@ import java.util.List;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final ReviewConverter reviewConverter;
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
 
-    // 리뷰 작성
-    public ReviewResponse createReview(ReviewRequest request, Long userId) {
+    @Transactional
+    public ReviewResponse.GetReview createReview(
+            Long storeId,
+            Long userId,
+            ReviewRequest.CreateReview dto
 
-        Store store = storeRepository.findById(request.storeId())
-                .orElseThrow(() -> new RuntimeException("Store not found"));
+    ) {
+        //가게 찾기
+        Store store=storeRepository.findById(storeId)
+                .orElseThrow(()->new StoreException(StoreErrorCode.NOT_FOUND));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        //유저 찾기
+        User user=userRepository.findById(userId)
+                .orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
 
-        Review review = reviewConverter.toEntity(request, user, store);
+        Review review=ReviewConverter.toReview(store,user,dto);
 
         reviewRepository.save(review);
+        return ReviewConverter.toGetReview(review);
 
-        return reviewConverter.toDto(review);
     }
+    // 리뷰 조회 (가게 기준)
+    public List<ReviewResponse.GetReview> getReviewsByStore(Long storeId) {
 
-    // 내가 작성한 리뷰 조회 (Cursor Pagination)
-    public ReviewCursorResponse getMyReviews(ReviewCursorRequest request) {
+        List<Review> reviewList = reviewRepository.findByStoreId(storeId);
 
-        Long userId = request.userId();
-        Long cursorId = request.cursorId();
-        BigDecimal cursorScore = request.cursorScore();
-        int size = request.size();
-        String sortType = request.sortType();
-
-        int limit = size + 1;
-
-        List<Review> reviews;
-
-        if ("ID".equals(sortType)) {
-
-            // 첫 페이지
-            if (cursorId == null) {
-                reviews = reviewRepository
-                        .findByUserIdOrderByIdDesc(userId, PageRequest.of(0, limit));
-            }
-            // 다음 페이지
-            else {
-                reviews = reviewRepository
-                        .findByUserIdAndIdLessThanOrderByIdDesc(userId, cursorId, PageRequest.of(0, limit));
-            }
-
-        } else { // SCORE
-
-            // 첫 페이지
-            if (cursorId == null || cursorScore == null) {
-                reviews = reviewRepository
-                        .findByUserIdOrderByScoreDescIdDesc(userId, PageRequest.of(0, limit));
-            }
-            // 다음 페이지
-            else {
-                reviews = reviewRepository
-                        .findByScoreCursor(userId, cursorScore, cursorId, PageRequest.of(0, limit));
-            }
-        }
-
-        boolean hasNext = reviews.size() > size;
-
-        if (hasNext) {
-            reviews = reviews.subList(0, size);
-        }
-
-        List<ReviewResponse> data = reviews.stream()
-                .map(reviewConverter::toDto)
+        return reviewList.stream()
+                .map(ReviewConverter::toGetReview)
                 .toList();
-
-        Review last = reviews.isEmpty() ? null : reviews.get(reviews.size() - 1);
-
-        return new ReviewCursorResponse(
-                data,
-                last != null ? last.getId() : null,
-                last != null ? last.getScore() : null,
-                hasNext
-        );
     }
 }
+
+
