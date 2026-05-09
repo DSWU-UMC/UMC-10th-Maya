@@ -23,10 +23,10 @@ public interface UserMissionRepository extends JpaRepository<UserMission, Long> 
     WHERE um.user.id = :userId
     AND um.status IN :statuses
 """)
-    List<UserMission> findByUserAndStatuses(
+    Page<UserMission> findByUserAndStatuses(
             @Param("userId") Long userId,
-            @Param("statuses") List<MissionStatus> statuses
-
+            @Param("statuses") List<MissionStatus> statuses,
+            Pageable pageable
     );
 
 

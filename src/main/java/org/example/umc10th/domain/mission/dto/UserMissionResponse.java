@@ -5,6 +5,7 @@ import lombok.Builder;
 import org.example.umc10th.domain.mission.enums.MissionStatus;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class UserMissionResponse{
     //내가 진행중, 진행 완료한 미션 모아 보기
@@ -18,6 +19,15 @@ public class UserMissionResponse{
             LocalDate deadline,
             MissionStatus status
 
+    ){
+
+    }
+    //페이지네이션 틀
+    @Builder
+    public record Pagination<T>(
+            List<T> data,
+            Integer pageNumber,
+            Integer pageSize
     ){
 
     }

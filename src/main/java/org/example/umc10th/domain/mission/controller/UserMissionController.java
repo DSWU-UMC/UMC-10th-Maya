@@ -23,14 +23,20 @@ public class UserMissionController {
 
     // 미션 조회 (진행중 / 완료)
     @GetMapping
-    public ApiResponse<List<UserMissionResponse.getMyMission>> getUserMissions(
+    public ApiResponse<UserMissionResponse.Pagination<UserMissionResponse.getMyMission>> getUserMissions(
             @RequestParam Long userId,
             @ModelAttribute UserMissionRequest.SortMyMission dto
-
     ) {
 
-        BaseSuccessCode code = MissionSuccessCode.OK;
-
-        return ApiResponse.onSuccess(code, userMissionService.getUserMissions(userId, dto.missionFilterStatus()));
+        return ApiResponse.onSuccess(
+                MissionSuccessCode.OK,
+                userMissionService.getUserMissions(
+                        userId,
+                        dto.pageSize(),
+                        dto.pageNumber(),
+                        dto.missionFilterStatus(),
+                        dto.sort()
+                )
+        );
     }
 }

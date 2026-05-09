@@ -9,9 +9,10 @@ import org.example.umc10th.global.apiPayLoad.ApiResponse;
 import org.example.umc10th.global.apiPayLoad.code.BaseSuccessCode;
 import org.example.umc10th.global.apiPayLoad.code.MissionSuccessCode;
 
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
 
 @RestController
 @RequestMapping("/api")
@@ -33,11 +34,14 @@ public class MissionController {
 
     //가게 내 미션들 조회
     @GetMapping("/v1/stores/{storeId}/missions")
-    public ApiResponse<List<MissionResponse.GetMission>> getMissions(
-            @PathVariable Long storeId
+    public ApiResponse<MissionResponse.Pagination<MissionResponse.GetMission>> getMissions(
+            @PathVariable Long storeId,
+            @RequestParam Integer pageSize,
+            @RequestParam String cursor,
+            @RequestParam String query
     ){
         BaseSuccessCode code=MissionSuccessCode.OK;
-        return ApiResponse.onSuccess(code,missionService.getMissions(storeId));
+        return ApiResponse.onSuccess(code,missionService.getMissions(storeId,pageSize,cursor,query));
     }
 
 

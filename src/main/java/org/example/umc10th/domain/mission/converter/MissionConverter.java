@@ -5,6 +5,8 @@ import org.example.umc10th.domain.mission.dto.MissionResponse;
 import org.example.umc10th.domain.mission.entity.Mission;
 import org.example.umc10th.domain.mission.entity.Store;
 
+import java.util.List;
+
 
 public class MissionConverter {
 
@@ -42,6 +44,20 @@ public class MissionConverter {
                 .regionName(mission.getStore().getRegion().getName())
                 .conditional(mission.getConditional())
                 .point(mission.getPoint())
+                .build();
+    }
+    //페이지네이션 툴 생성
+    public static <T> MissionResponse.Pagination<T> toPagenation(
+            List<T> data,
+            Boolean hasNext,
+            String nextCursor,
+            Integer pageSize
+    ){
+        return MissionResponse.Pagination.<T>builder()
+                .data(data)
+                .hasNext(hasNext)
+                .nextCursor(nextCursor)
+                .pageSize(pageSize)
                 .build();
     }
 }

@@ -18,6 +18,12 @@ public enum MissionErrorCode implements BaseErrorCode {
             HttpStatus.NOT_FOUND,
             "MISSION404_2",
             "해당 사용자 미션을 찾을 수 없습니다."
+    ),
+
+    QUERY_NOT_VALID(
+            HttpStatus.NOT_FOUND,
+            "MISSION404_3",
+                    "쿼리가 적절하지 않습니다."
     );
 
     private final HttpStatus status;

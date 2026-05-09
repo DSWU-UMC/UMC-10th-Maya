@@ -6,8 +6,10 @@ import org.example.umc10th.domain.mission.enums.MissionFilterStatus;
 
 public class UserMissionRequest{
     public record SortMyMission(
-
-           MissionFilterStatus missionFilterStatus
-    ){}
+            MissionFilterStatus missionFilterStatus,
+            Integer pageSize,
+            Integer pageNumber,
+            String sort
+    ) {}
 }
 
