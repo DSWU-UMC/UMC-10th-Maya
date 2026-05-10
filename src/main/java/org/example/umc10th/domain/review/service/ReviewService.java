@@ -6,18 +6,22 @@ import org.example.umc10th.domain.mission.repository.StoreRepository;
 import org.example.umc10th.domain.review.converter.ReviewConverter;
 import org.example.umc10th.domain.review.dto.*;
 import org.example.umc10th.domain.review.entity.Review;
-import org.example.umc10th.domain.review.enums.SortType;
 import org.example.umc10th.domain.review.repository.ReviewRepository;
 import org.example.umc10th.domain.user.entity.User;
 import org.example.umc10th.domain.user.repository.UserRepository;
 
+import org.example.umc10th.global.apiPayLoad.code.ReviewErrorCode;
 import org.example.umc10th.global.apiPayLoad.code.StoreErrorCode;
 import org.example.umc10th.global.apiPayLoad.code.UserErrorCode;
+import org.example.umc10th.global.apiPayLoad.exception.ReviewException;
 import org.example.umc10th.global.apiPayLoad.exception.StoreException;
 import org.example.umc10th.global.apiPayLoad.exception.UserException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -51,13 +55,130 @@ public class ReviewService {
 
     }
     // 리뷰 조회 (가게 기준)
-    public List<ReviewResponse.GetReview> getReviewsByStore(Long storeId) {
+    public ReviewResponse.Pagination<ReviewResponse.GetReview> getReviewsByStore(
+            Long storeId,
+            Integer pageSize,
+            String cursor,
+            String query
+    ) {
 
-        List<Review> reviewList = reviewRepository.findByStoreId(storeId);
+        PageRequest pageRequest = PageRequest.of(0, pageSize);
 
-        return reviewList.stream()
-                .map(ReviewConverter::toGetReview)
-                .toList();
+        Slice<Review> reviewList;
+
+        String nextCursor = "-1";
+
+        // 첫 조회
+        if (cursor.equals("-1")) {
+
+            switch (query.toLowerCase()) {
+
+                case "id":
+
+                    reviewList =
+                            reviewRepository.findByStoreIdOrderByIdDesc(
+                                    storeId,
+                                    pageRequest
+                            );
+
+                    break;
+
+                case "score":
+
+                    reviewList =
+                            reviewRepository
+                                    .findByStoreIdOrderByScoreDescIdDesc(
+                                            storeId,
+                                            pageRequest
+                                    );
+
+                    break;
+
+                default:
+                    throw new ReviewException(
+                            ReviewErrorCode.QUERY_NOT_VALID
+                    );
+            }
+
+        } else {
+
+            String[] cursorSplit = cursor.split(":");
+
+            switch (query.toLowerCase()) {
+
+                case "id":
+
+                    Long idCursor =
+                            Long.parseLong(cursorSplit[1]);
+
+                    reviewList =
+                            reviewRepository
+                                    .findByStoreIdAndIdLessThanOrderByIdDesc(
+                                            storeId,
+                                            idCursor,
+                                            pageRequest
+                                    );
+
+                    break;
+
+                case "score":
+
+                    BigDecimal scoreCursor =
+                            new BigDecimal(cursorSplit[0]);
+
+                    Long reviewIdCursor =
+                            Long.parseLong(cursorSplit[1]);
+
+                    reviewList =
+                            reviewRepository.findByScoreCursor(
+                                    storeId,
+                                    scoreCursor,
+                                    reviewIdCursor,
+                                    pageRequest
+                            );
+
+                    break;
+
+                default:
+                    throw new ReviewException(
+                            ReviewErrorCode.QUERY_NOT_VALID
+                    );
+            }
+        }
+
+        // 다음 커서 생성
+        if (!reviewList.getContent().isEmpty()) {
+
+            Review lastReview =
+                    reviewList.getContent()
+                            .get(reviewList.getContent().size() - 1);
+
+            switch (query.toLowerCase()) {
+
+                case "id":
+
+                    nextCursor =
+                            lastReview.getId() + ":" + lastReview.getId();
+
+                    break;
+
+                case "score":
+
+                    nextCursor =
+                            lastReview.getScore()
+                                    + ":" +
+                                    lastReview.getId();
+
+                    break;
+            }
+        }
+
+        return ReviewConverter.toPagination(
+                reviewList.map(ReviewConverter::toGetReview).toList(),
+                reviewList.hasNext(),
+                nextCursor,
+                reviewList.getSize()
+        );
     }
 }
 

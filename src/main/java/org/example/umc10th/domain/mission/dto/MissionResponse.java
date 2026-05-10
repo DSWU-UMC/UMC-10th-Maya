@@ -26,7 +26,7 @@ public class MissionResponse{
                 Integer point,
                 LocalDate deadline
         ){}
-        //페이지네이션 툴
+        //페이지네이션 틀
         @Builder
         public record Pagination<T>(
             List<T> data,

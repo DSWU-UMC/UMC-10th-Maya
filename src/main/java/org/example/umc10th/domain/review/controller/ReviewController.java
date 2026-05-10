@@ -37,11 +37,14 @@ public class ReviewController {
 
     // 리뷰 조회 (가게 기준)
     @GetMapping("/store/{storeId}")
-    public ApiResponse<List<ReviewResponse.GetReview>> getReviewsByStore(
-            @PathVariable Long storeId
+    public ApiResponse<ReviewResponse.Pagination<ReviewResponse.GetReview>> getReviewsByStore(
+            @PathVariable Long storeId,
+            @RequestParam Integer pageSize,
+            @RequestParam String cursor,
+            @RequestParam String query
     ) {
 
         BaseSuccessCode code=ReviewSuccessCode.REVIEW_FETCHED;
-        return ApiResponse.onSuccess(code,reviewService.getReviewsByStore(storeId));
+        return ApiResponse.onSuccess(code,reviewService.getReviewsByStore(storeId,pageSize,cursor,query));
     }
 }

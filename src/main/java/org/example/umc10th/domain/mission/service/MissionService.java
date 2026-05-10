@@ -15,7 +15,6 @@ import org.example.umc10th.global.apiPayLoad.code.StoreErrorCode;
 import org.example.umc10th.global.apiPayLoad.exception.MissionException;
 import org.example.umc10th.global.apiPayLoad.exception.StoreException;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import org.springframework.data.domain.Slice;

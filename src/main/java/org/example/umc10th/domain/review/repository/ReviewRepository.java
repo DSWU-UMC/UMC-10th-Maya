@@ -2,6 +2,7 @@ package org.example.umc10th.domain.review.repository;
 
 import org.example.umc10th.domain.review.entity.Review;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,33 +18,45 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByStoreId(Long storeId);
 
-
+    // =========================
     // ID 정렬
-    List<Review> findByUserIdOrderByIdDesc(Long userId, Pageable pageable);
+    // =========================
 
-    List<Review> findByUserIdAndIdLessThanOrderByIdDesc(
-            Long userId, Long cursorId, Pageable pageable);
-
-
-    // SCORE 정렬
-    List<Review> findByUserIdOrderByScoreDescIdDesc(Long userId, Pageable pageable);
-
-    //  커서 기반 쿼리
-    @Query("""
-    SELECT r FROM Review r
-    WHERE r.user.id = :userId
-    AND (
-        r.score < :score
-        OR (r.score = :score AND r.id < :id)
-    )
-    ORDER BY r.score DESC, r.id DESC
-    """)
-    List<Review> findByScoreCursor(
-            Long userId,
-            BigDecimal score,
-            Long id,
+    Slice<Review> findByStoreIdOrderByIdDesc(
+            Long storeId,
             Pageable pageable
     );
 
+    Slice<Review> findByStoreIdAndIdLessThanOrderByIdDesc(
+            Long storeId,
+            Long cursorId,
+            Pageable pageable
+    );
 
+    // =========================
+    // SCORE 정렬
+    // =========================
+
+    Slice<Review> findByStoreIdOrderByScoreDescIdDesc(
+            Long storeId,
+            Pageable pageable
+    );
+
+    // 복합 커서(score + id)
+    @Query("""
+        SELECT r
+        FROM Review r
+        WHERE r.store.id = :storeId
+        AND (
+            r.score < :score
+            OR (r.score = :score AND r.id < :id)
+        )
+        ORDER BY r.score DESC, r.id DESC
+    """)
+    Slice<Review> findByScoreCursor(
+            @Param("storeId") Long storeId,
+            @Param("score") BigDecimal score,
+            @Param("id") Long id,
+            Pageable pageable
+    );
 }
