@@ -25,8 +25,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(allowUris).permitAll()
+                // URL 권한 설정
+                .authorizeHttpRequests(auth -> auth
+                        // 회원가입만 Public API
+                        .requestMatchers("/auth/signup").permitAll()
+
+                        // 그 외 전부 Private API
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
