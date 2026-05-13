@@ -2,19 +2,18 @@ package org.example.umc10th.domain.review.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 import org.example.umc10th.domain.review.dto.ReviewRequest;
 import org.example.umc10th.domain.review.dto.ReviewResponse;
 import org.example.umc10th.domain.review.service.ReviewService;
 import org.example.umc10th.global.apiPayLoad.ApiResponse;
+import org.example.umc10th.global.apiPayLoad.code.BaseSuccessCode;
+
 import org.example.umc10th.global.apiPayLoad.code.ReviewSuccessCode;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 
 @RestController
@@ -24,16 +23,28 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
-            @RequestBody @Valid ReviewRequest request
+    // 리뷰 생성
+    @PostMapping("/{storeId}")
+    public ApiResponse<ReviewResponse.GetReview> createReview(
+            @PathVariable Long storeId,
+            @RequestParam Long userId,
+            @RequestBody @Valid ReviewRequest.CreateReview dto
+    ) {
+        BaseSuccessCode code= ReviewSuccessCode.REVIEW_CREATED;
+        return ApiResponse.onSuccess(code,reviewService.createReview(storeId,userId,dto));
+
+    }
+
+    // 리뷰 조회 (가게 기준)
+    @GetMapping("/store/{storeId}")
+    public ApiResponse<ReviewResponse.Pagination<ReviewResponse.GetReview>> getReviewsByStore(
+            @PathVariable Long storeId,
+            @RequestParam Integer pageSize,
+            @RequestParam String cursor,
+            @RequestParam String query
     ) {
 
-        Long userId = request.userId();
-
-        ReviewResponse response = reviewService.createReview(request, userId);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.onSuccess(response, ReviewSuccessCode.REVIEW_CREATED));
+        BaseSuccessCode code=ReviewSuccessCode.REVIEW_FETCHED;
+        return ApiResponse.onSuccess(code,reviewService.getReviewsByStore(storeId,pageSize,cursor,query));
     }
 }

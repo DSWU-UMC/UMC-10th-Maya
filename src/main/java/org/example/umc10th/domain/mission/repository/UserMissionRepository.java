@@ -1,6 +1,6 @@
 package org.example.umc10th.domain.mission.repository;
 
-import org.example.umc10th.domain.mission.entity.Mission;
+
 import org.example.umc10th.domain.mission.entity.UserMission;
 import org.example.umc10th.domain.mission.enums.MissionStatus;
 import org.springframework.data.domain.Page;

@@ -6,23 +6,17 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum MissionErrorCode implements BaseErrorCode {
+public enum ReviewErrorCode implements BaseErrorCode {
 
-    MISSION_NOT_FOUND(
+    REVIEW_NOT_FOUND(
             HttpStatus.NOT_FOUND,
-            "MISSION404_1",
-            "해당 미션을 찾을 수 없습니다."
-    ),
-
-    USER_MISSION_NOT_FOUND(
-            HttpStatus.NOT_FOUND,
-            "MISSION404_2",
-            "해당 사용자 미션을 찾을 수 없습니다."
+            "REVIEW404_1",
+            "리뷰를 찾을 수 없습니다."
     ),
 
     QUERY_NOT_VALID(
             HttpStatus.NOT_FOUND,
-            "MISSION404_3",
+            "REVIEW404_2",
                     "쿼리가 적절하지 않습니다."
     );
 

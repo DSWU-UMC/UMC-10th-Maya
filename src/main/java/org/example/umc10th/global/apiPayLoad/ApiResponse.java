@@ -23,7 +23,7 @@ public class ApiResponse<T> {
     @JsonProperty("result")
     private T result;
 
-    public static <T> ApiResponse<T> onSuccess(T result, BaseSuccessCode code){
+    public static <T> ApiResponse<T> onSuccess(BaseSuccessCode code,T result ){
         return new ApiResponse<>(
                 true,
                 code.getCode(),

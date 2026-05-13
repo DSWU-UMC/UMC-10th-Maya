@@ -6,12 +6,20 @@ import org.example.umc10th.domain.mission.repository.StoreRepository;
 import org.example.umc10th.domain.review.converter.ReviewConverter;
 import org.example.umc10th.domain.review.dto.*;
 import org.example.umc10th.domain.review.entity.Review;
-import org.example.umc10th.domain.review.enums.SortType;
 import org.example.umc10th.domain.review.repository.ReviewRepository;
 import org.example.umc10th.domain.user.entity.User;
 import org.example.umc10th.domain.user.repository.UserRepository;
+
+import org.example.umc10th.global.apiPayLoad.code.ReviewErrorCode;
+import org.example.umc10th.global.apiPayLoad.code.StoreErrorCode;
+import org.example.umc10th.global.apiPayLoad.code.UserErrorCode;
+import org.example.umc10th.global.apiPayLoad.exception.ReviewException;
+import org.example.umc10th.global.apiPayLoad.exception.StoreException;
+import org.example.umc10th.global.apiPayLoad.exception.UserException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,83 +30,156 @@ import java.util.List;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final ReviewConverter reviewConverter;
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
 
-    // 리뷰 작성
-    public ReviewResponse createReview(ReviewRequest request, Long userId) {
+    @Transactional
+    public ReviewResponse.GetReview createReview(
+            Long storeId,
+            Long userId,
+            ReviewRequest.CreateReview dto
 
-        Store store = storeRepository.findById(request.storeId())
-                .orElseThrow(() -> new RuntimeException("Store not found"));
+    ) {
+        //가게 찾기
+        Store store=storeRepository.findById(storeId)
+                .orElseThrow(()->new StoreException(StoreErrorCode.NOT_FOUND));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        //유저 찾기
+        User user=userRepository.findById(userId)
+                .orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
 
-        Review review = reviewConverter.toEntity(request, user, store);
+        Review review=ReviewConverter.toReview(store,user,dto);
 
         reviewRepository.save(review);
+        return ReviewConverter.toGetReview(review);
 
-        return reviewConverter.toDto(review);
     }
+    // 리뷰 조회 (가게 기준)
+    public ReviewResponse.Pagination<ReviewResponse.GetReview> getReviewsByStore(
+            Long storeId,
+            Integer pageSize,
+            String cursor,
+            String query
+    ) {
 
-    // 내가 작성한 리뷰 조회 (Cursor Pagination)
-    public ReviewCursorResponse getMyReviews(ReviewCursorRequest request) {
+        PageRequest pageRequest = PageRequest.of(0, pageSize);
 
-        Long userId = request.userId();
-        Long cursorId = request.cursorId();
-        BigDecimal cursorScore = request.cursorScore();
-        int size = request.size();
-        String sortType = request.sortType();
+        Slice<Review> reviewList;
 
-        int limit = size + 1;
+        String nextCursor = "-1";
 
-        List<Review> reviews;
+        // 첫 조회
+        if (cursor.equals("-1")) {
 
-        if ("ID".equals(sortType)) {
+            switch (query.toLowerCase()) {
 
-            // 첫 페이지
-            if (cursorId == null) {
-                reviews = reviewRepository
-                        .findByUserIdOrderByIdDesc(userId, PageRequest.of(0, limit));
+                case "id":
+
+                    reviewList =
+                            reviewRepository.findByStoreIdOrderByIdDesc(
+                                    storeId,
+                                    pageRequest
+                            );
+
+                    break;
+
+                case "score":
+
+                    reviewList =
+                            reviewRepository
+                                    .findByStoreIdOrderByScoreDescIdDesc(
+                                            storeId,
+                                            pageRequest
+                                    );
+
+                    break;
+
+                default:
+                    throw new ReviewException(
+                            ReviewErrorCode.QUERY_NOT_VALID
+                    );
             }
-            // 다음 페이지
-            else {
-                reviews = reviewRepository
-                        .findByUserIdAndIdLessThanOrderByIdDesc(userId, cursorId, PageRequest.of(0, limit));
-            }
 
-        } else { // SCORE
+        } else {
 
-            // 첫 페이지
-            if (cursorId == null || cursorScore == null) {
-                reviews = reviewRepository
-                        .findByUserIdOrderByScoreDescIdDesc(userId, PageRequest.of(0, limit));
-            }
-            // 다음 페이지
-            else {
-                reviews = reviewRepository
-                        .findByScoreCursor(userId, cursorScore, cursorId, PageRequest.of(0, limit));
+            String[] cursorSplit = cursor.split(":");
+
+            switch (query.toLowerCase()) {
+
+                case "id":
+
+                    Long idCursor =
+                            Long.parseLong(cursorSplit[1]);
+
+                    reviewList =
+                            reviewRepository
+                                    .findByStoreIdAndIdLessThanOrderByIdDesc(
+                                            storeId,
+                                            idCursor,
+                                            pageRequest
+                                    );
+
+                    break;
+
+                case "score":
+
+                    BigDecimal scoreCursor =
+                            new BigDecimal(cursorSplit[0]);
+
+                    Long reviewIdCursor =
+                            Long.parseLong(cursorSplit[1]);
+
+                    reviewList =
+                            reviewRepository.findByScoreCursor(
+                                    storeId,
+                                    scoreCursor,
+                                    reviewIdCursor,
+                                    pageRequest
+                            );
+
+                    break;
+
+                default:
+                    throw new ReviewException(
+                            ReviewErrorCode.QUERY_NOT_VALID
+                    );
             }
         }
 
-        boolean hasNext = reviews.size() > size;
+        // 다음 커서 생성
+        if (!reviewList.getContent().isEmpty()) {
 
-        if (hasNext) {
-            reviews = reviews.subList(0, size);
+            Review lastReview =
+                    reviewList.getContent()
+                            .get(reviewList.getContent().size() - 1);
+
+            switch (query.toLowerCase()) {
+
+                case "id":
+
+                    nextCursor =
+                            lastReview.getId() + ":" + lastReview.getId();
+
+                    break;
+
+                case "score":
+
+                    nextCursor =
+                            lastReview.getScore()
+                                    + ":" +
+                                    lastReview.getId();
+
+                    break;
+            }
         }
 
-        List<ReviewResponse> data = reviews.stream()
-                .map(reviewConverter::toDto)
-                .toList();
-
-        Review last = reviews.isEmpty() ? null : reviews.get(reviews.size() - 1);
-
-        return new ReviewCursorResponse(
-                data,
-                last != null ? last.getId() : null,
-                last != null ? last.getScore() : null,
-                hasNext
+        return ReviewConverter.toPagination(
+                reviewList.map(ReviewConverter::toGetReview).toList(),
+                reviewList.hasNext(),
+                nextCursor,
+                reviewList.getSize()
         );
     }
 }
+
+
