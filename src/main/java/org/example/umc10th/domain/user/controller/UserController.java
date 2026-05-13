@@ -25,7 +25,7 @@ public class UserController {
 
 
     // 마이페이지
-    @PostMapping("v1/useres/me")
+    @PostMapping("v1/users/me")
     public ApiResponse<UserResponse.GetInfo> getInfo(
             @RequestBody UserRequest.GetInfo dto
     ){
