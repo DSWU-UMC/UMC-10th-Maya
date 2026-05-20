@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 
 @Service
@@ -38,37 +37,48 @@ public class ReviewService {
             Long storeId,
             Long userId,
             ReviewRequest.CreateReview dto
-
     ) {
-        //가게 찾기
-        Store store=storeRepository.findById(storeId)
-                .orElseThrow(()->new StoreException(StoreErrorCode.NOT_FOUND));
 
-        //유저 찾기
-        User user=userRepository.findById(userId)
-                .orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
+        // 가게 찾기
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() ->
+                        new StoreException(StoreErrorCode.NOT_FOUND));
 
-        Review review=ReviewConverter.toReview(store,user,dto);
+        // 유저 찾기
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserException(UserErrorCode.USER_NOT_FOUND));
+
+        Review review =
+                ReviewConverter.toReview(store, user, dto);
 
         reviewRepository.save(review);
-        return ReviewConverter.toGetReview(review);
 
+        return ReviewConverter.toGetReview(review);
     }
-    // 리뷰 조회 (가게 기준)
-    public ReviewResponse.Pagination<ReviewResponse.GetReview> getReviewsByStore(
-            Long storeId,
+
+    // =========================================
+    // 내가 작성한 리뷰 조회 (커서 기반)
+    // =========================================
+
+    public ReviewResponse.Pagination<ReviewResponse.GetReview> getMyReviews(
+            Long userId,
             Integer pageSize,
             String cursor,
             String query
     ) {
 
-        PageRequest pageRequest = PageRequest.of(0, pageSize);
+        PageRequest pageRequest =
+                PageRequest.of(0, pageSize);
 
         Slice<Review> reviewList;
 
         String nextCursor = "-1";
 
-        // 첫 조회
+        // =========================
+        // 첫 페이지 조회
+        // =========================
+
         if (cursor.equals("-1")) {
 
             switch (query.toLowerCase()) {
@@ -76,10 +86,11 @@ public class ReviewService {
                 case "id":
 
                     reviewList =
-                            reviewRepository.findByStoreIdOrderByIdDesc(
-                                    storeId,
-                                    pageRequest
-                            );
+                            reviewRepository
+                                    .findByUserIdOrderByIdDesc(
+                                            userId,
+                                            pageRequest
+                                    );
 
                     break;
 
@@ -87,22 +98,30 @@ public class ReviewService {
 
                     reviewList =
                             reviewRepository
-                                    .findByStoreIdOrderByScoreDescIdDesc(
-                                            storeId,
+                                    .findByUserIdOrderByScoreDescIdDesc(
+                                            userId,
                                             pageRequest
                                     );
 
                     break;
 
                 default:
+
                     throw new ReviewException(
                             ReviewErrorCode.QUERY_NOT_VALID
                     );
             }
 
-        } else {
+        }
 
-            String[] cursorSplit = cursor.split(":");
+        // =========================
+        // 다음 페이지 조회
+        // =========================
+
+        else {
+
+            String[] cursorSplit =
+                    cursor.split(":");
 
             switch (query.toLowerCase()) {
 
@@ -113,8 +132,8 @@ public class ReviewService {
 
                     reviewList =
                             reviewRepository
-                                    .findByStoreIdAndIdLessThanOrderByIdDesc(
-                                            storeId,
+                                    .findByUserIdAndIdLessThanOrderByIdDesc(
+                                            userId,
                                             idCursor,
                                             pageRequest
                                     );
@@ -130,23 +149,28 @@ public class ReviewService {
                             Long.parseLong(cursorSplit[1]);
 
                     reviewList =
-                            reviewRepository.findByScoreCursor(
-                                    storeId,
-                                    scoreCursor,
-                                    reviewIdCursor,
-                                    pageRequest
-                            );
+                            reviewRepository
+                                    .findByUserScoreCursor(
+                                            userId,
+                                            scoreCursor,
+                                            reviewIdCursor,
+                                            pageRequest
+                                    );
 
                     break;
 
                 default:
+
                     throw new ReviewException(
                             ReviewErrorCode.QUERY_NOT_VALID
                     );
             }
         }
 
+        // =========================
         // 다음 커서 생성
+        // =========================
+
         if (!reviewList.getContent().isEmpty()) {
 
             Review lastReview =
@@ -158,7 +182,9 @@ public class ReviewService {
                 case "id":
 
                     nextCursor =
-                            lastReview.getId() + ":" + lastReview.getId();
+                            lastReview.getId()
+                                    + ":" +
+                                    lastReview.getId();
 
                     break;
 
@@ -174,12 +200,16 @@ public class ReviewService {
         }
 
         return ReviewConverter.toPagination(
-                reviewList.map(ReviewConverter::toGetReview).toList(),
+                reviewList
+                        .map(ReviewConverter::toGetReview)
+                        .toList(),
+
                 reviewList.hasNext(),
+
                 nextCursor,
+
                 reviewList.getSize()
         );
     }
 }
-
 
