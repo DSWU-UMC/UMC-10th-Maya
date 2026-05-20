@@ -10,4 +10,10 @@ public class UserResponse {
             String phoneNumber,
             Integer point
     ){}
+
+    // 로그인 응답
+    @Builder
+    public record LoginResponse(
+            String accessToken
+    ) {}
 }

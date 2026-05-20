@@ -5,4 +5,11 @@ public class UserRequest {
     public record GetInfo(
             Long id
     ){}
+
+    //로그인
+    public record LoginRequest(
+            String email,
+            String password
+    ) {
+    }
 }

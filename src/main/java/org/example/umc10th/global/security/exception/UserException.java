@@ -1,4 +1,4 @@
-package org.example.umc10th.global.apiPayLoad.exception;
+package org.example.umc10th.global.security.exception;
 
 import org.example.umc10th.global.apiPayLoad.code.BaseErrorCode;
 

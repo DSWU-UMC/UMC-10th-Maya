@@ -3,7 +3,7 @@ package org.example.umc10th.global.apiPayLoad.handler;
 import org.example.umc10th.global.apiPayLoad.ApiResponse;
 import org.example.umc10th.global.apiPayLoad.code.BaseErrorCode;
 import org.example.umc10th.global.apiPayLoad.code.GeneralErrorCode;
-import org.example.umc10th.global.apiPayLoad.exception.ProjectException;
+import org.example.umc10th.global.security.exception.ProjectException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
