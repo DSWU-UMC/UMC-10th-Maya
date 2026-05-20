@@ -2,6 +2,7 @@ package org.example.umc10th.domain.user.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.umc10th.domain.user.dto.SignupRequest;
+import org.example.umc10th.domain.user.dto.SignupResponse;
 import org.example.umc10th.domain.user.dto.UserRequest;
 import org.example.umc10th.domain.user.dto.UserResponse;
 import org.example.umc10th.domain.user.service.AuthService;
@@ -24,14 +25,16 @@ public class AuthController {
 
     // 회원 가입
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> signup(
+    public ResponseEntity<ApiResponse<SignupResponse>> signup(
             @RequestBody SignupRequest request
     ) {
 
         BaseSuccessCode code = UserSuccessCode.SIGNUP_SUCCESS;
 
+        SignupResponse response = authService.signup(request);
+
         return ResponseEntity.ok(
-                ApiResponse.onSuccess(code, null)
+                ApiResponse.onSuccess(code, response)
         );
     }
 

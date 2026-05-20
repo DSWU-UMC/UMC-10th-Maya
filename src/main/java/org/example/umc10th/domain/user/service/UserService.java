@@ -25,26 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // 회원가입
-    @Transactional
-    public void signup(SignupRequest request) {
 
-        // 이메일 중복 체크
-        if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw new UserException(UserErrorCode.ALREADY_EXIST_USER);
-        }
-
-        // 비밀번호 암호화
-        String encodedPassword = passwordEncoder.encode(request.password());
-
-        User user = User.builder()
-                .email(request.email())
-                .password(encodedPassword)
-                .name(request.name())
-                .build();
-
-        userRepository.save(user);
-    }
 
     // 마이페이지
     public UserResponse.GetInfo getInfo(AuthUser user) {
