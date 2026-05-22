@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.example.umc10th.domain.user.enums.SocialType;
 import org.example.umc10th.global.security.entity.AuthUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -48,6 +49,13 @@ public class JwtUtil {
             return null;
         }
     }
+    public String getUid(String token) {
+        try {
+            return getClaims(token).getPayload().getSubject();
+        } catch (JwtException e) {
+            return null;
+        }
+    }
 
     /** 토큰 유효성 확인
      *
@@ -75,7 +83,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .subject(user.getUsername()) // User 이메일을 Subject로
                 .claim("role", authorities)
-                .claim("email", user.getUsername())
+                .claim("social_type", user.getUser().getSocialType().toString())
                 .issuedAt(Date.from(now)) // 언제 발급한지
                 .expiration(Date.from(now.plus(expiration))) // 언제까지 유효한지
                 .signWith(secretKey) // sign할 Key
@@ -89,5 +97,13 @@ public class JwtUtil {
                 .clockSkewSeconds(60)
                 .build()
                 .parseSignedClaims(token);
+    }
+
+    public SocialType getSocialType(String token) {
+        try{
+            return SocialType.valueOf(getClaims(token).getPayload().get("social_type").toString().toUpperCase());
+        }catch(JwtException e){
+            return null;
+        }
     }
 }

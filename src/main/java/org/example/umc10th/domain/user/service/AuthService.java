@@ -51,6 +51,7 @@ public class AuthService {
         return AuthConverter.toSignupResponse(savedUser, token);
     }
 
+    //로그인
     public String login(UserRequest.LoginRequest request) {
 
         User user = userRepository.findByEmail(request.email())

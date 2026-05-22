@@ -9,6 +9,7 @@ import org.example.umc10th.common.entity.BaseEntity;
 import org.example.umc10th.domain.mission.entity.UserMission;
 import org.example.umc10th.domain.review.entity.Review;
 import org.example.umc10th.domain.user.enums.Gender;
+import org.example.umc10th.domain.user.enums.SocialType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,13 @@ public class User extends BaseEntity {
 
     @Column(name="point", nullable=false)
     private Integer point;
+
+    @Column(name="social_uid")
+    private String socialUid;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="social_type")
+    private SocialType socialType;
 
     @OneToMany(mappedBy = "user")
     private List<Review> reviews = new ArrayList<>();
