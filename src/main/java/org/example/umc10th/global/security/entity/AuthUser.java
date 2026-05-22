@@ -1,4 +1,4 @@
-package org.example.umc10th.global.entity;
+package org.example.umc10th.global.security.entity;
 
 import jakarta.annotation.Nullable;
 import lombok.Getter;
@@ -23,11 +23,11 @@ public class AuthUser implements UserDetails {
 
     @Override
     public @Nullable String getPassword() {
-        return user.getPassword();
+        return null;
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return user.getSocialUid();
     }
 }

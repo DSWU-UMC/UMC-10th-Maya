@@ -14,47 +14,49 @@ import java.util.List;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
+    // 기본 조회
     List<Review> findByUserId(Long userId);
 
     List<Review> findByStoreId(Long storeId);
 
-    // =========================
-    // ID 정렬
-    // =========================
 
-    Slice<Review> findByStoreIdOrderByIdDesc(
-            Long storeId,
+    // 내가 작성한 리뷰 조회 - ID 정렬
+    // 첫 페이지
+    Slice<Review> findByUserIdOrderByIdDesc(
+            Long userId,
             Pageable pageable
     );
 
-    Slice<Review> findByStoreIdAndIdLessThanOrderByIdDesc(
-            Long storeId,
+    // 다음 페이지 (cursorId 사용)
+    Slice<Review> findByUserIdAndIdLessThanOrderByIdDesc(
+            Long userId,
             Long cursorId,
             Pageable pageable
     );
 
-    // =========================
-    // SCORE 정렬
-    // =========================
 
-    Slice<Review> findByStoreIdOrderByScoreDescIdDesc(
-            Long storeId,
+    // 내가 작성한 리뷰 조회 - SCORE 정렬
+
+
+    // 첫 페이지
+    Slice<Review> findByUserIdOrderByScoreDescIdDesc(
+            Long userId,
             Pageable pageable
     );
 
-    // 복합 커서(score + id)
+    // 다음 페이지 (복합 커서: score + id)
     @Query("""
         SELECT r
         FROM Review r
-        WHERE r.store.id = :storeId
+        WHERE r.user.id = :userId
         AND (
             r.score < :score
             OR (r.score = :score AND r.id < :id)
         )
         ORDER BY r.score DESC, r.id DESC
     """)
-    Slice<Review> findByScoreCursor(
-            @Param("storeId") Long storeId,
+    Slice<Review> findByUserScoreCursor(
+            @Param("userId") Long userId,
             @Param("score") BigDecimal score,
             @Param("id") Long id,
             Pageable pageable

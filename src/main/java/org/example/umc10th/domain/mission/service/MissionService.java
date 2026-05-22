@@ -12,8 +12,8 @@ import org.example.umc10th.domain.mission.repository.MissionRepository;
 import org.example.umc10th.domain.mission.repository.StoreRepository;
 import org.example.umc10th.global.apiPayLoad.code.MissionErrorCode;
 import org.example.umc10th.global.apiPayLoad.code.StoreErrorCode;
-import org.example.umc10th.global.apiPayLoad.exception.MissionException;
-import org.example.umc10th.global.apiPayLoad.exception.StoreException;
+import org.example.umc10th.global.security.exception.MissionException;
+import org.example.umc10th.global.security.exception.StoreException;
 
 import org.springframework.data.domain.PageRequest;
 

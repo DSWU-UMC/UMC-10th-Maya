@@ -11,7 +11,8 @@ import org.example.umc10th.domain.user.dto.UserResponse;
 import org.example.umc10th.domain.user.entity.User;
 import org.example.umc10th.domain.user.repository.UserRepository;
 import org.example.umc10th.global.apiPayLoad.code.UserErrorCode;
-import org.example.umc10th.global.apiPayLoad.exception.UserException;
+import org.example.umc10th.global.security.entity.AuthUser;
+import org.example.umc10th.global.security.exception.UserException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,36 +25,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // 회원가입
-    @Transactional
-    public void signup(SignupRequest request) {
 
-        // 이메일 중복 체크
-        if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw new UserException(UserErrorCode.ALREADY_EXIST_USER);
-        }
-
-        // 비밀번호 암호화
-        String encodedPassword = passwordEncoder.encode(request.password());
-
-        User user = User.builder()
-                .email(request.email())
-                .password(encodedPassword)
-                .name(request.name())
-                .build();
-
-        userRepository.save(user);
-    }
 
     // 마이페이지
-    public UserResponse.GetInfo getInfo(UserRequest.GetInfo dto) {
+    public UserResponse.GetInfo getInfo(AuthUser user) {
 
-        Long userId = dto.id();
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new UserException(UserErrorCode.USER_NOT_FOUND));
-
-        return UserConverter.toGetInfo(user);
+        //컨버터를 이용해서 응답 dto 생성& return
+        return UserConverter.toGetInfo(user.getUser());
     }
+
+
 }
