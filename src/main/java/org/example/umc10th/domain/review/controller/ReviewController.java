@@ -3,6 +3,7 @@ package org.example.umc10th.domain.review.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.example.umc10th.domain.review.controller.docs.ReviewControllerDocs;
 import org.example.umc10th.domain.review.dto.ReviewRequest;
 import org.example.umc10th.domain.review.dto.ReviewResponse;
 import org.example.umc10th.domain.review.service.ReviewService;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
-public class ReviewController {
+public class ReviewController implements ReviewControllerDocs {
 
     private final ReviewService reviewService;
 
