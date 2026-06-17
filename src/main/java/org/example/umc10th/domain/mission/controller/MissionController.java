@@ -2,6 +2,7 @@ package org.example.umc10th.domain.mission.controller;
 
 import lombok.RequiredArgsConstructor;
 
+import org.example.umc10th.domain.mission.controller.docs.MissionControllerDocs;
 import org.example.umc10th.domain.mission.dto.MissionRequest;
 import org.example.umc10th.domain.mission.dto.MissionResponse;
 import org.example.umc10th.domain.mission.service.MissionService;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class MissionController {
+public class MissionController implements MissionControllerDocs {
 
     private final MissionService missionService;
 

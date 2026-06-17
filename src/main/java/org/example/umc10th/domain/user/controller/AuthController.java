@@ -1,6 +1,7 @@
 package org.example.umc10th.domain.user.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.umc10th.domain.user.controller.docs.AuthControllerDocs;
 import org.example.umc10th.domain.user.dto.SignupRequest;
 import org.example.umc10th.domain.user.dto.SignupResponse;
 import org.example.umc10th.domain.user.dto.UserRequest;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthController implements AuthControllerDocs {
 
     private final AuthService authService;
 

@@ -2,6 +2,7 @@ package org.example.umc10th.domain.mission.controller;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.umc10th.domain.mission.controller.docs.UserMissionControllerDocs;
 import org.example.umc10th.domain.mission.dto.UserMissionRequest;
 import org.example.umc10th.domain.mission.dto.UserMissionResponse;
 import org.example.umc10th.domain.mission.service.UserMissionService;
@@ -17,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/user-missions")
 @RequiredArgsConstructor
-public class UserMissionController {
+public class UserMissionController implements UserMissionControllerDocs {
 
     private final UserMissionService userMissionService;
 
